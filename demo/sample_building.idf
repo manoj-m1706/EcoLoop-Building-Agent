@@ -1,0 +1,44 @@
+! - AI cooling setpoint: 24.0
+! - AI heating setpoint: 20.0
+! - AI lighting status: on
+
+Version, 23.2;
+
+Building,
+  EcoLoop Demo Building,   !- Name
+  0.0,                     !- North Axis {deg}
+  Suburbs,                 !- Terrain
+  0.04,                    !- Loads Convergence Tolerance Value {W}
+  0.4,                     !- Temperature Convergence Tolerance Value {deltaC}
+  FullExterior,            !- Solar Distribution
+  25,                      !- Maximum Number of Warmup Days
+  6;                       !- Minimum Number of Warmup Days
+
+ScheduleTypeLimits,
+  Temperature,             !- Name
+  -60,                     !- Lower Limit Value {C}
+  200,                     !- Upper Limit Value {C}
+  Continuous,              !- Numeric Type
+  Temperature;             !- Unit Type
+
+ScheduleTypeLimits,
+  Any Number,              !- Name
+  0.0,                     !- Lower Limit Value
+  1.0,                     !- Upper Limit Value
+  Continuous,              !- Numeric Type
+  Dimensionless;           !- Unit Type
+
+Schedule:Constant,
+  CoolingSetpointSchedule, !- Name
+  Temperature,             !- Schedule Type Limits Name
+  24.0;                    !- Hourly Value
+
+Schedule:Constant,
+  HeatingSetpointSchedule, !- Name
+  Temperature,             !- Schedule Type Limits Name
+  20.0;                    !- Hourly Value
+
+Schedule:Constant,
+  LightingSchedule,        !- Name
+  Any Number,              !- Schedule Type Limits Name
+  1.0;                     !- Hourly Value

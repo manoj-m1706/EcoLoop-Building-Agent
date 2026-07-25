@@ -1,0 +1,3 @@
+# EPW Weather File Placeholder for EcoLoop Building Agent
+# In a real environment, this file would contain hourly weather records (Dry Bulb Temperature, Dew Point, Humidity, Solar Radiation, etc.)
+# Coordinates: 37.7749,-122.4194 (San Francisco, CA)
