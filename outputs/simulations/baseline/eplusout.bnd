@@ -1,0 +1,206 @@
+Program Version,EnergyPlus, Version 23.2.0-7636e6b3e9, YMD=2026.07.26 17:26
+! This file shows details about the branches, nodes, and other
+! elements of the flow connections.
+! This file is intended for use in "debugging" potential problems
+! that may also be detected by the program, but may be more easily
+! identified by "eye".
+! This file is also intended to support software which draws a
+! schematic diagram of the HVAC system.
+! ===============================================================
+! #Nodes,<Number of Unique Nodes>
+ #Nodes,26
+! <Node>,<NodeNumber>,<Node Name>,<Node Fluid Type>,<# Times Node Referenced After Definition>
+ Node,1,PLENUM EX NODE 2,Air,2
+ Node,2,PLENUM EX NODE 3,Air,2
+ Node,3,PLENUM EX NODE 4,Air,2
+ Node,4,PLENUM EX NODE 5,Air,2
+ Node,5,SPACE1-1 NODE,Air,0
+ Node,6,SPACE1-1 IN NODE,Air,1
+ Node,7,SPACE1-1 EX NODE,Air,2
+ Node,8,RET NODE 1,Air,0
+ Node,9,SPACE2-1 NODE,Air,0
+ Node,10,SPACE2-1 IN NODE,Air,1
+ Node,11,SPACE2-1 EX NODE,Air,2
+ Node,12,RET NODE 2,Air,0
+ Node,13,SPACE3-1 NODE,Air,0
+ Node,14,SPACE3-1 IN NODE,Air,1
+ Node,15,SPACE3-1 EX NODE,Air,2
+ Node,16,RET NODE 3,Air,0
+ Node,17,SPACE4-1 NODE,Air,0
+ Node,18,SPACE4-1 IN NODE,Air,1
+ Node,19,SPACE4-1 EX NODE,Air,2
+ Node,20,RET NODE 4,Air,0
+ Node,21,SPACE5-1 NODE,Air,0
+ Node,22,SPACE5-1 IN NODE,Air,1
+ Node,23,SPACE5-1 EX NODE,Air,2
+ Node,24,RET NODE 5,Air,0
+ Node,25,PLENUM EX NODE 1,Air,1
+ Node,26,PLENUM-1 NODE,Air,0
+! ===============================================================
+! Suspicious nodes have 0 references.  It is normal for some nodes, however.
+! Listing nodes with 0 references (culled from previous list):
+! <Suspicious Node>,<NodeNumber>,<Node Name>,<Node Fluid Type>,<# Times Node Referenced After Definition>
+ Suspicious Node,5,SPACE1-1 NODE,Air,0
+ Suspicious Node,8,RET NODE 1,Air,0
+ Suspicious Node,9,SPACE2-1 NODE,Air,0
+ Suspicious Node,12,RET NODE 2,Air,0
+ Suspicious Node,13,SPACE3-1 NODE,Air,0
+ Suspicious Node,16,RET NODE 3,Air,0
+ Suspicious Node,17,SPACE4-1 NODE,Air,0
+ Suspicious Node,20,RET NODE 4,Air,0
+ Suspicious Node,21,SPACE5-1 NODE,Air,0
+ Suspicious Node,24,RET NODE 5,Air,0
+ Suspicious Node,26,PLENUM-1 NODE,Air,0
+! ===============================================================
+! <#Branch Lists>,<Number of Branch Lists>
+ #Branch Lists,0
+! <Branch List>,<Branch List Count>,<Branch List Name>,<Loop Name>,<Loop Type>,<Number of Branches>
+! <Branch>,<Branch Count>,<Branch Name>,<Loop Name>,<Loop Type>,<Branch Inlet Node Name>,<Branch Outlet Node Name>
+! ===============================================================
+! <#Supply Air Paths>,<Number of Supply Air Paths>
+ #Supply Air Paths,0
+! <Supply Air Path>,<Supply Air Path Count>,<Supply Air Path Name>,<AirLoopHVAC Name>
+! <#Components on Supply Air Path>,<Number of Components>
+! <Supply Air Path Component>,<Component Count>,<Component Type>,<Component Name>,<AirLoopHVAC Name>
+! <#Outlet Nodes on Supply Air Path Component>,<Number of Nodes>
+! <Supply Air Path Component Nodes>,<Node Count>,<Component Type>,<Component Name>,<Inlet Node Name>,<Outlet Node Name>,<AirLoopHVAC Name>
+! ===============================================================
+! <#Return Air Paths>,<Number of Return Air Paths>
+ #Return Air Paths,0
+! <Return Air Path>,<Return Air Path Count>,<Return Air Path Name>,<AirLoopHVAC Name>
+! <#Components on Return Air Path>,<Number of Components>
+! <Return Air Path Component>,<Component Count>,<Component Type>,<Component Name>,<AirLoopHVAC Name>
+! <#Inlet Nodes on Return Air Path Component>,<Number of Nodes>
+! <Return Air Path Component Nodes>,<Node Count>,<Component Type>,<Component Name>,<Inlet Node Name>,<Outlet Node Name>,<AirLoopHVAC Name>
+! ===============================================================
+! #Outdoor Air Nodes,<Number of Outdoor Air Nodes>
+ #Outdoor Air Nodes,0
+! ===============================================================
+! <#Component Sets>,<Number of Component Sets>
+ #Component Sets,0
+! <Component Set>,<Component Set Count>,<Parent Object Type>,<Parent Object Name>,<Component Type>,<Component Name>,<Inlet Node ID>,<Outlet Node ID>,<Description>
+! ===============================================================
+! <# Plant Loops>,<Number of Plant Loops>
+ #Plant Loops,0
+! <Plant Loop>,<Plant Loop Name>,<Loop Type>,<Inlet Node Name>,<Outlet Node Name>,<Branch List>,<Connector List>
+! <Plant Loop Connector>,<Connector Type>,<Connector Name>,<Loop Name>,<Loop Type>,<Number of Inlets/Outlets>
+! <Plant Loop Connector Branches>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Branch>,<Outlet Branch>,<Loop Name>,<Loop Type>
+! <Plant Loop Connector Nodes>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Node>,<Outlet Node>,<Loop Name>,<Loop Type>
+! <Plant Loop Supply Connection>,<Plant Loop Name>,<Supply Side Outlet Node Name>,<Demand Side Inlet Node Name>
+! <Plant Loop Return Connection>,<Plant Loop Name>,<Demand Side Outlet Node Name>,<Supply Side Inlet Node Name>
+! ===============================================================
+! <# Condenser Loops>,<Number of Condenser Loops>
+ #Condenser Loops,0
+! <Condenser Loop>,<Condenser Loop Name>,<Loop Type>,<Inlet Node Name>,<Outlet Node Name>,<Branch List>,<Connector List>
+! <Condenser Loop Connector>,<Connector Type>,<Connector Name>,<Loop Name>,<Loop Type>,<Number of Inlets/Outlets>
+! <Condenser Loop Connector Branches>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Branch>,<Outlet Branch>,<Loop Name>,<Loop Type>
+! <Condenser Loop Connector Nodes>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Node>,<Outlet Node>,<Loop Name>,<Loop Type>
+! <Condenser Loop Supply Connection>,<Condenser Loop Name>,<Supply Side Outlet Node Name>,<Demand Side Inlet Node Name>
+! <Condenser Loop Return Connection>,<Condenser Loop Name>,<Demand Side Outlet Node Name>,<Supply Side Inlet Node Name>
+! ===============================================================
+! <# Controlled Zones>,<Number of Controlled Zones>
+ #Controlled Zones,5
+! <Controlled Zone>,<Controlled Zone Name>,<Equip List Name>,<Control List Name>,<Zone Node Name>,<# Inlet Nodes>,<# Exhaust Nodes>,<# Return Nodes>
+! <Controlled Zone Inlet>,<Inlet Node Count>,<Controlled Zone Name>,<Supply Air Inlet Node Name>,<SD Sys:Cooling/Heating [DD:Cooling] Inlet Node Name>,<DD Sys:Heating Inlet Node Name>
+! <Controlled Zone Exhaust>,<Exhaust Node Count>,<Controlled Zone Name>,<Exhaust Air Node Name>
+ Controlled Zone,SPACE1-1,SPACE1-1 EQ,,SPACE1-1 NODE,1,1,1
+   Controlled Zone Inlet,1,SPACE1-1,SPACE1-1 IN NODE,Undefined,N/A
+   Controlled Zone Exhaust,1,SPACE1-1,SPACE1-1 EX NODE
+   Controlled Zone Return,1,SPACE1-1,RET NODE 1
+ Controlled Zone,SPACE2-1,SPACE2-1 EQ,,SPACE2-1 NODE,1,1,1
+   Controlled Zone Inlet,1,SPACE2-1,SPACE2-1 IN NODE,Undefined,N/A
+   Controlled Zone Exhaust,1,SPACE2-1,SPACE2-1 EX NODE
+   Controlled Zone Return,1,SPACE2-1,RET NODE 2
+ Controlled Zone,SPACE3-1,SPACE3-1 EQ,,SPACE3-1 NODE,1,1,1
+   Controlled Zone Inlet,1,SPACE3-1,SPACE3-1 IN NODE,Undefined,N/A
+   Controlled Zone Exhaust,1,SPACE3-1,SPACE3-1 EX NODE
+   Controlled Zone Return,1,SPACE3-1,RET NODE 3
+ Controlled Zone,SPACE4-1,SPACE4-1 EQ,,SPACE4-1 NODE,1,1,1
+   Controlled Zone Inlet,1,SPACE4-1,SPACE4-1 IN NODE,Undefined,N/A
+   Controlled Zone Exhaust,1,SPACE4-1,SPACE4-1 EX NODE
+   Controlled Zone Return,1,SPACE4-1,RET NODE 4
+ Controlled Zone,SPACE5-1,SPACE5-1 EQ,,SPACE5-1 NODE,1,1,1
+   Controlled Zone Inlet,1,SPACE5-1,SPACE5-1 IN NODE,Undefined,N/A
+   Controlled Zone Exhaust,1,SPACE5-1,SPACE5-1 EX NODE
+   Controlled Zone Return,1,SPACE5-1,RET NODE 5
+! ===============================================================
+! <#Zone Equipment Lists>,<Number of Zone Equipment Lists>
+ #Zone Equipment Lists,5
+! <Zone Equipment List>,<Zone Equipment List Count>,<Zone Equipment List Name>,<Zone Name>,<Number of Components>
+! <Zone Equipment Component>,<Component Count>,<Component Type>,<Component Name>,<Zone Name>,<Heating Priority>,<Cooling Priority>
+ Zone Equipment List,2,SPACE1-1 EQ,SPACE1-1,1
+   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 1 IDEAL LOADS,SPACE1-1,1,1
+ Zone Equipment List,3,SPACE2-1 EQ,SPACE2-1,1
+   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 2 IDEAL LOADS,SPACE2-1,1,1
+ Zone Equipment List,4,SPACE3-1 EQ,SPACE3-1,1
+   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 3 IDEAL LOADS,SPACE3-1,1,1
+ Zone Equipment List,5,SPACE4-1 EQ,SPACE4-1,1
+   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 4 IDEAL LOADS,SPACE4-1,1,1
+ Zone Equipment List,6,SPACE5-1 EQ,SPACE5-1,1
+   Zone Equipment Component,1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 5 IDEAL LOADS,SPACE5-1,1,1
+! ===============================================================
+! <#AirLoopHVACs>,<Number of AirLoopHVACs>
+ #AirLoopHVACs,0
+! <AirLoopHVAC>,<Air Loop Name>,<# Return Nodes>,<# Supply Nodes>,<# Zones Cooled>,<# Zones Heated>,<Outdoor Air Used>
+! <AirLoop Return Connections>,<Connection Count>,<AirLoopHVAC Name>,<Zn Eqp Return Node #>,<Zn Eqp Return Node Name>,<AirLoop Return Node #>,<Air Loop Return Node Name>
+! <AirLoop Supply Connections>,<Connection Count>,<AirLoopHVAC Name>,<Zn Eqp Supply Node #>,<Zn Eqp Supply Node Name>,<AirLoop Supply Node #>,<Air Loop Supply Node Name>
+! <Cooled Zone Info>,<Cooled Zone Count>,<Cooled Zone Name>,<Cooled Zone Inlet Node #>,<Cooled Zone Inlet Node Name>,<AirLoopHVAC Name>
+! <Heated Zone Info>,<Heated Zone Count>,<Heated Zone Name>,<Heated Zone Inlet Node #>,<Heated Zone Inlet Node Name>,<AirLoopHVAC Name>
+! <Outdoor Air Connections>,<OA Inlet Node #>,<OA Return Air Inlet Node Name>,<OA Outlet Node #>,<OA Mixed Air Outlet Node Name>,<AirLoopHVAC Name>
+! <AirLoopHVAC Connector>,<Connector Type>,<Connector Name>,<Loop Name>,<Loop Type>,<Number of Inlets/Outlets>
+! <AirLoopHVAC Connector Branches>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Branch>,<Outlet Branch>,<Loop Name>,<Loop Type>
+! <AirLoopHVAC Connector Nodes>,<Connector Node Count>,<Connector Type>,<Connector Name>,<Inlet Node>,<Outlet Node>,<Loop Name>,<Loop Type>
+! ===============================================================
+! <#Parent Node Connections>,<Number of Parent Node Connections>
+ #Parent Node Connections,0
+! <Parent Node Connection>,<Node Name>,<Node ObjectType>,<Node ObjectName>,<Node ConnectionType>,<Node FluidStream>
+! ===============================================================
+! <#Non-Parent Node Connections>,<Number of Non-Parent Node Connections>
+ #Non-Parent Node Connections,46
+! <Non-Parent Node Connection>,<Node Name>,<Node ObjectType>,<Node ObjectName>,<Node ConnectionType>,<Node FluidStream>
+ Non-Parent Node Connection,SPACE1-1 NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE1-1,ZoneNode,1
+ Non-Parent Node Connection,SPACE1-1 IN NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE1-1,ZoneInlet,1
+ Non-Parent Node Connection,SPACE1-1 EX NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE1-1,ZoneExhaust,1
+ Non-Parent Node Connection,RET NODE 1,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE1-1,ZoneReturn,1
+ Non-Parent Node Connection,SPACE2-1 NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE2-1,ZoneNode,1
+ Non-Parent Node Connection,SPACE2-1 IN NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE2-1,ZoneInlet,1
+ Non-Parent Node Connection,SPACE2-1 EX NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE2-1,ZoneExhaust,1
+ Non-Parent Node Connection,RET NODE 2,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE2-1,ZoneReturn,1
+ Non-Parent Node Connection,SPACE3-1 NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE3-1,ZoneNode,1
+ Non-Parent Node Connection,SPACE3-1 IN NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE3-1,ZoneInlet,1
+ Non-Parent Node Connection,SPACE3-1 EX NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE3-1,ZoneExhaust,1
+ Non-Parent Node Connection,RET NODE 3,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE3-1,ZoneReturn,1
+ Non-Parent Node Connection,SPACE4-1 NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE4-1,ZoneNode,1
+ Non-Parent Node Connection,SPACE4-1 IN NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE4-1,ZoneInlet,1
+ Non-Parent Node Connection,SPACE4-1 EX NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE4-1,ZoneExhaust,1
+ Non-Parent Node Connection,RET NODE 4,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE4-1,ZoneReturn,1
+ Non-Parent Node Connection,SPACE5-1 NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE5-1,ZoneNode,1
+ Non-Parent Node Connection,SPACE5-1 IN NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE5-1,ZoneInlet,1
+ Non-Parent Node Connection,SPACE5-1 EX NODE,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE5-1,ZoneExhaust,1
+ Non-Parent Node Connection,RET NODE 5,ZONEHVAC:EQUIPMENTCONNECTIONS,SPACE5-1,ZoneReturn,1
+ Non-Parent Node Connection,SPACE1-1 IN NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 1 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,SPACE1-1 EX NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 1 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,PLENUM EX NODE 1,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 1 IDEAL LOADS,Inlet,1
+ Non-Parent Node Connection,SPACE2-1 IN NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 2 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,SPACE2-1 EX NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 2 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,PLENUM EX NODE 2,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 2 IDEAL LOADS,Inlet,1
+ Non-Parent Node Connection,SPACE3-1 IN NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 3 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,SPACE3-1 EX NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 3 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,PLENUM EX NODE 3,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 3 IDEAL LOADS,Inlet,1
+ Non-Parent Node Connection,SPACE4-1 IN NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 4 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,SPACE4-1 EX NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 4 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,PLENUM EX NODE 4,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 4 IDEAL LOADS,Inlet,1
+ Non-Parent Node Connection,SPACE5-1 IN NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 5 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,SPACE5-1 EX NODE,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 5 IDEAL LOADS,Outlet,1
+ Non-Parent Node Connection,PLENUM EX NODE 5,ZONEHVAC:IDEALLOADSAIRSYSTEM,ZONE 5 IDEAL LOADS,Inlet,1
+ Non-Parent Node Connection,PLENUM-1 NODE,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,ZoneNode,1
+ Non-Parent Node Connection,PLENUM EX NODE 1,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,Outlet,1
+ Non-Parent Node Connection,PLENUM EX NODE 2,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,InducedAir,1
+ Non-Parent Node Connection,PLENUM EX NODE 3,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,InducedAir,1
+ Non-Parent Node Connection,PLENUM EX NODE 4,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,InducedAir,1
+ Non-Parent Node Connection,PLENUM EX NODE 5,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,InducedAir,1
+ Non-Parent Node Connection,SPACE1-1 EX NODE,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,Inlet,1
+ Non-Parent Node Connection,SPACE2-1 EX NODE,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,Inlet,1
+ Non-Parent Node Connection,SPACE3-1 EX NODE,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,Inlet,1
+ Non-Parent Node Connection,SPACE4-1 EX NODE,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,Inlet,1
+ Non-Parent Node Connection,SPACE5-1 EX NODE,AIRLOOPHVAC:RETURNPLENUM,RETURN-PLENUM-1,Inlet,1
