@@ -8,7 +8,7 @@
     "lighting": "low",
     "ventilation": "medium",
     "reason": "Peak pricing is active at hour 14, requiring energy conservation. High relative humidity (90.5%) necessitates medium ventilation. Cooling setpoint is raised to 25.5\u00b0C and heating setpoint is set to 19.0\u00b0C to reduce HVAC load while keeping the occupied zone within comfort limits. Lighting is set to low to further reduce peak energy consumption.",
-    "model_used": "GEMINI (gemini-3.5-flash)"
+    "model_used": "OLLAMA (qwen2.5)"
   },
   "baseline_metrics": {
     "total_elec_kwh": 248.15,
