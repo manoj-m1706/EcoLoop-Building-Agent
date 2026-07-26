@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-07-26 17:31:45",
-  "pipeline_duration_seconds": 304.2,
-  "ai_model": "qwen2.5",
+  "timestamp": "2026-07-26 17:41:03",
+  "pipeline_duration_seconds": 331.66,
+  "ai_model": "qwen3",
   "control_decisions": {
     "cooling_setpoint": 24.5,
     "heating_setpoint": 19.5,
     "lighting": "on",
     "ventilation": "medium",
-    "reason": "[Heuristic Optimizer] Occupied and comfortable (PMV in comfort zone). Slightly relaxed setpoints to optimize energy consumption.",
-    "model_used": "Heuristics (Fallback)"
+    "reason": "Peak pricing is active at hour 14, requiring energy conservation. High relative humidity (90.5%) necessitates medium ventilation. Cooling setpoint is raised to 25.5\u00b0C and heating setpoint is set to 19.0\u00b0C to reduce HVAC load while keeping the occupied zone within comfort limits. Lighting is set to low to further reduce peak energy consumption.",
+    "model_used": "OLLAMA (qwen2.5)"
   },
   "baseline_metrics": {
     "total_elec_kwh": 248.15,

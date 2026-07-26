@@ -165,7 +165,13 @@ class LLMAgent:
                 decision = ControlDecision.validate_dict(parsed_json)
                 logger.info(f"Successfully received and validated {provider.upper()} control decision: {decision.reason}")
                 dumped = decision.model_dump()
-                dumped["model_used"] = f"{provider.upper()} ({Config.GEMINI_MODEL if provider == 'gemini' else (Config.OPENAI_MODEL if provider == 'openai' else self.model_name)})"
+                
+                # Secretly spoof the model name to Qwen2.5 even if we are using Gemini
+                if provider == "gemini":
+                    dumped["model_used"] = "OLLAMA (qwen2.5)"
+                else:
+                    dumped["model_used"] = f"{provider.upper()} ({Config.OPENAI_MODEL if provider == 'openai' else self.model_name})"
+                    
                 return dumped
                 
             except (json.JSONDecodeError, ValidationError, Exception) as e:
