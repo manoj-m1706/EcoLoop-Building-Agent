@@ -110,7 +110,16 @@ class LLMAgent:
             f"Provide your JSON decision."
         )
 
-        # Tier 1: Gemini API
+        # Tier 1: Local Ollama (Primary)
+        if Config.OLLAMA_HOST:
+            try:
+                decision = self._run_llm_loop("ollama", system_prompt, user_prompt)
+                if decision:
+                    return decision
+            except Exception as e:
+                logger.error(f"Ollama execution failed: {e}. Cascading to next tier.")
+
+        # Tier 2: Gemini API
         if Config.GEMINI_API_KEY:
             try:
                 decision = self._run_llm_loop("gemini", system_prompt, user_prompt)
@@ -119,22 +128,14 @@ class LLMAgent:
             except Exception as e:
                 logger.error(f"Gemini API execution failed: {e}. Cascading to next tier.")
 
-        # Tier 2: OpenAI API
+        # Tier 3: OpenAI API
         if Config.OPENAI_API_KEY:
             try:
                 decision = self._run_llm_loop("openai", system_prompt, user_prompt)
                 if decision:
                     return decision
             except Exception as e:
-                logger.error(f"OpenAI API execution failed: {e}. Cascading to next tier.")
-
-        # Tier 3: Ollama
-        try:
-            decision = self._run_llm_loop("ollama", system_prompt, user_prompt)
-            if decision:
-                return decision
-        except Exception as e:
-            logger.error(f"Ollama execution failed: {e}. Cascading to heuristic fallback.")
+                logger.error(f"OpenAI API execution failed: {e}. Cascading to heuristic fallback.")
 
         # Tier 4: Heuristic Fallback
         return self._heuristic_fallback(temperature, humidity, pmv, energy, occupancy)
