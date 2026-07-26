@@ -1,14 +1,14 @@
 {
-  "timestamp": "2026-07-26 17:25:54",
-  "pipeline_duration_seconds": 267.26,
-  "ai_model": "qwen3",
+  "timestamp": "2026-07-26 17:31:45",
+  "pipeline_duration_seconds": 304.2,
+  "ai_model": "qwen2.5",
   "control_decisions": {
     "cooling_setpoint": 24.5,
     "heating_setpoint": 19.5,
     "lighting": "on",
     "ventilation": "medium",
     "reason": "[Heuristic Optimizer] Occupied and comfortable (PMV in comfort zone). Slightly relaxed setpoints to optimize energy consumption.",
-    "model_used": "GEMINI (gemini-3.5-flash)"
+    "model_used": "Heuristics (Fallback)"
   },
   "baseline_metrics": {
     "total_elec_kwh": 248.15,
@@ -21,21 +21,21 @@
     "rows_processed": 48
   },
   "optimized_metrics": {
-    "total_elec_kwh": 149.15,
-    "hvac_elec_kwh": 45.94,
-    "avg_indoor_temp": 21.82,
-    "avg_relative_humidity": 84.79,
-    "avg_pmv": -0.38,
-    "cooling_load_kwh": 123.9,
-    "heating_load_kwh": 82.69,
+    "total_elec_kwh": 248.15,
+    "hvac_elec_kwh": 92.02,
+    "avg_indoor_temp": 22.01,
+    "avg_relative_humidity": 73.69,
+    "avg_pmv": -0.37,
+    "cooling_load_kwh": 262.37,
+    "heating_load_kwh": 161.38,
     "rows_processed": 48
   },
   "savings": {
-    "electricity_saved_kwh": 196.35,
-    "savings_pct": 50.16,
-    "hvac_electricity_saved_kwh": 97.35,
-    "hvac_savings_pct": 67.94,
-    "cost_saved_usd": 23.56,
-    "comfort_pmv_change": -0.0
+    "electricity_saved_kwh": 51.27,
+    "savings_pct": 13.1,
+    "hvac_electricity_saved_kwh": 51.27,
+    "hvac_savings_pct": 35.78,
+    "cost_saved_usd": 6.15,
+    "comfort_pmv_change": -0.01
   }
 }
