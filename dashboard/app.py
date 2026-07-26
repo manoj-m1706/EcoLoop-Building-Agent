@@ -300,6 +300,8 @@ else:
         def get_hvac_watts_series(df, cols):
             series = pd.Series(0.0, index=df.index)
             for col in cols:
+                if col not in df.columns:
+                    continue
                 if "[j]" in col.lower() or "joule" in col.lower():
                     # convert Joules to Watts (hourly values represent Joules consumed in 1 hour)
                     series += df[col] / 3600.0
@@ -384,6 +386,8 @@ else:
             def sum_energy_kwh(df, cols):
                 total_kwh = 0.0
                 for col in cols:
+                    if col not in df.columns:
+                        continue
                     if "[j]" in col.lower() or "joule" in col.lower():
                         total_kwh += df[col].sum() * 2.77778e-7
                     else:
