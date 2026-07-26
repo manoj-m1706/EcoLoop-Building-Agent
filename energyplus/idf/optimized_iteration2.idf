@@ -208,23 +208,23 @@ Schedule:Compact,
     Until: 8:00,              !- Field 3
     0.05,                     !- Field 4
     Until: 9:00,              !- Field 5
-    0.3,                      !- Field 6
+    0.9,                      !- Field 6
     Until: 10:00,             !- Field 7
-    0.3,                      !- Field 8
+    0.95,                     !- Field 8
     Until: 11:00,             !- Field 9
-    0.3,                      !- Field 10
+    1.00,                     !- Field 10
     Until: 12:00,             !- Field 11
-    0.3,                      !- Field 12
+    0.95,                     !- Field 12
     Until: 13:00,             !- Field 13
-    0.3,                      !- Field 14
+    0.8,                      !- Field 14
     Until: 14:00,             !- Field 15
-    0.3,                      !- Field 16
+    0.9,                      !- Field 16
     Until: 18:00,             !- Field 17
-    0.3,                      !- Field 18
+    1.00,                     !- Field 18
     Until: 19:00,             !- Field 19
-    0.3,                      !- Field 20
+    0.60,                     !- Field 20
     Until: 21:00,             !- Field 21
-    0.3,                      !- Field 22
+    0.20,                     !- Field 22
     Until: 24:00,             !- Field 23
     0.05,                     !- Field 24
     For: Weekends WinterDesignDay Holiday,    !- Field 25
@@ -297,12 +297,12 @@ Schedule:Compact,
     16.7,                     !- Field 4
     For: WinterDesignDay,     !- Field 5
     Until: 24:00,             !- Field 6
-    19,                       !- Field 7
+    19.5,                     !- Field 7
     For: WeekDays,            !- Field 8
     Until: 6:00,              !- Field 9
     16.7,                     !- Field 10
     Until: 20:00,             !- Field 11
-    19,                       !- Field 12
+    19.5,                     !- Field 12
     Until: 24:00,             !- Field 13
     16.7,                     !- Field 14
     For: WeekEnds Holiday,    !- Field 15
@@ -318,7 +318,7 @@ Schedule:Compact,
     Through: 12/31,           !- Field 1
     For: SummerDesignDay,     !- Field 2
     Until: 24:00,             !- Field 3
-    25.5,                     !- Field 4
+    24.5,                     !- Field 4
     For: WinterDesignDay,     !- Field 5
     Until: 24:00,             !- Field 6
     29.4,                     !- Field 7
@@ -326,7 +326,7 @@ Schedule:Compact,
     Until: 6:00,              !- Field 9
     29.4,                     !- Field 10
     Until: 20:00,             !- Field 11
-    25.5,                     !- Field 12
+    24.5,                     !- Field 12
     Until: 24:00,             !- Field 13
     29.4,                     !- Field 14
     For: WeekEnds Holiday,    !- Field 15

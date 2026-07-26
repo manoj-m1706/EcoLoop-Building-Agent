@@ -39,7 +39,7 @@ env/
 *.swp
 
 # Simulation output details (keep results.json, ignore logs and run data)
-outputs/simulations/
+# outputs/simulations/
 outputs/logs/
 energyplus/EnergyPlus-*/
 
