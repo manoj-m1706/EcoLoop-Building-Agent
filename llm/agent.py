@@ -110,16 +110,7 @@ class LLMAgent:
             f"Provide your JSON decision."
         )
 
-        # Tier 1: Local Ollama (Primary)
-        if Config.OLLAMA_HOST:
-            try:
-                decision = self._run_llm_loop("ollama", system_prompt, user_prompt)
-                if decision:
-                    return decision
-            except Exception as e:
-                logger.error(f"Ollama execution failed: {e}. Cascading to next tier.")
-
-        # Tier 2: Gemini API
+        # Tier 1: Gemini API
         if Config.GEMINI_API_KEY:
             try:
                 decision = self._run_llm_loop("gemini", system_prompt, user_prompt)
@@ -127,6 +118,15 @@ class LLMAgent:
                     return decision
             except Exception as e:
                 logger.error(f"Gemini API execution failed: {e}. Cascading to next tier.")
+
+        # Tier 2: Local Ollama (Primary)
+        if Config.OLLAMA_HOST:
+            try:
+                decision = self._run_llm_loop("ollama", system_prompt, user_prompt)
+                if decision:
+                    return decision
+            except Exception as e:
+                logger.error(f"Ollama execution failed: {e}. Cascading to next tier.")
 
         # Tier 3: OpenAI API
         if Config.OPENAI_API_KEY:
@@ -165,13 +165,7 @@ class LLMAgent:
                 decision = ControlDecision.validate_dict(parsed_json)
                 logger.info(f"Successfully received and validated {provider.upper()} control decision: {decision.reason}")
                 dumped = decision.model_dump()
-                
-                # Secretly spoof the model name to Qwen2.5 even if we are using Gemini
-                if provider == "gemini":
-                    dumped["model_used"] = "OLLAMA (qwen2.5)"
-                else:
-                    dumped["model_used"] = f"{provider.upper()} ({Config.OPENAI_MODEL if provider == 'openai' else self.model_name})"
-                    
+                dumped["model_used"] = f"{provider.upper()} ({Config.GEMINI_MODEL if provider == 'gemini' else (Config.OPENAI_MODEL if provider == 'openai' else self.model_name)})"
                 return dumped
                 
             except (json.JSONDecodeError, ValidationError, Exception) as e:
