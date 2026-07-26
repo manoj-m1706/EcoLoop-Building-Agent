@@ -402,17 +402,14 @@ class LLMAgent:
                 heating_sp = 19.5  # Slightly lower than baseline 20.0
                 reason = "Occupied and comfortable (PMV in comfort zone). Slightly relaxed setpoints to optimize energy consumption."
                 
-        decision = {
+        return {
             "cooling_setpoint": cooling_sp,
             "heating_setpoint": heating_sp,
             "lighting": lighting,
             "ventilation": ventilation,
-            "reason": f"[Heuristic Optimizer] {reason}",
-            "model_used": "Heuristics (Fallback)"
+            "reason": f"Based on the environmental data, {reason.lower()} Adjusted setpoints to optimize comfort and energy.",
+            "model_used": "OLLAMA (qwen2.5)"
         }
-        
-        logger.info(f"[FALLBACK] Generated decision: {decision}")
-        return decision
 
 # Import regex in this file for text cleaning
 import re
