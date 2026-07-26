@@ -56,20 +56,48 @@ To guarantee execution safety and prevent parsing errors:
 
 ---
 
-## 3. Prompt Latency & Fail-Safe Fallbacks
+## 3. Multi-Tier Cognitive Routing & Fail-Safe Fallbacks
 
-LLM generation speed and API availability are common failure modes in real-time BMS control loops. EcoLoop manages these concerns through latency optimization and a robust fail-safe mechanism.
+LLM generation speed, API availability, and local service status are common failure modes in real-time BMS control loops. EcoLoop manages these concerns through a robust **Multi-Tier Cascade Routing System** that prioritizes the highest capability cloud models, falls back to local models, and ultimately defaults to a physical heuristic fallback to ensure the building loop never hangs or crashes.
 
-### Latency Optimization
-- **Deterministic Generation**: The temperature is set to a low value (`temperature=0.2` in Ollama) to produce highly structured and concise JSON blocks quickly, minimizing token generation time.
-- **Short Token Limits**: Prompt engineering is designed to return *only* the raw JSON object and a brief reasoning string, reducing output token overhead.
-- **Strict Timeouts**: HTTP requests to Ollama are configured with a strict connection and read timeout limit (`timeout=8.0` seconds) to prevent the BMS loop from hanging indefinitely if the host service becomes unresponsive.
+```mermaid
+graph TD
+    Start[Get Decision] --> C1{Gemini Key present?}
+    C1 -->|Yes| Gemini[Query Gemini API]
+    C1 -->|No| C2{OpenAI Key present?}
+    Gemini -->|Success| Valid{Valid JSON?}
+    Gemini -->|Failure| C2
+    C2 -->|Yes| OpenAI[Query OpenAI API]
+    C2 -->|No| Ollama[Query Local Ollama]
+    OpenAI -->|Success| Valid
+    OpenAI -->|Failure| Ollama
+    Ollama -->|Success| Valid
+    Ollama -->|Failure| Heuristic[Run Heuristic Fallback]
+    Valid -->|Yes| Return[Apply Setpoints]
+    Valid -->|No| Retry[Self-Correction Loop / 3 Retries]
+    Retry -->|Fails 3x| Heuristic
+    Heuristic --> Return
+```
 
-### Fail-Safe Heuristic Optimizer
-If Ollama is offline, the model is missing, or the self-correction loop fails to produce a valid schema after 3 attempts, the agent automatically falls back to an **Intelligent Heuristic Optimizer** ([_heuristic_fallback](file:///c:/Users/matur/OneDrive/Desktop/EcoLoop-Building-Agent/llm/agent.py#L136)):
-- Evaluates thermodynamic constraints and occupancy rules directly via Python logic.
-- If unoccupied, it aggressively relaxes cooling to `27.5`°C and heating to `16.0`°C while turning off lights and lowering ventilation to save energy.
-- If occupied, it dynamically adjusts setpoints based on the current PMV deviation (e.g., if PMV is hot ($>0.7$), it triggers higher ventilation and lowers cooling setpoints; if comfortable, it slightly relaxes setpoints for marginal savings).
+### Cascading Tiers
+
+1. **Google Gemini API (SOTA)**:
+   - Uses `gemini-1.5-flash` (or pro).
+   - Enforces 100% reliable schema conformance by passing Pydantic fields via Gemini's native `responseSchema` and `responseMimeType` parameter in the API payload, completely eliminating parsing issues.
+2. **OpenAI API (SOTA)**:
+   - Uses `gpt-4o-mini` (or similar) with JSON object response formatting.
+3. **Local Ollama (Offline)**:
+   - Queries a locally-hosted LLM model (e.g. Qwen) via HTTP REST.
+4. **Intelligent Heuristic Optimizer (Ultimate Fail-Safe)**:
+   - If all API keys are unconfigured, connections timeout, or the self-correction loop fails to produce a valid schema after 3 attempts, the agent automatically falls back to standard heuristic thermodynamic rules.
+
+### Latency Optimization & Timeouts
+- **Deterministic Generation**: LLM temperature is set to a low value (`0.2`) to produce highly structured and concise decisions quickly, minimizing token generation time.
+- **Strict Timeouts**: Cloud and local HTTP requests are configured with strict connection and read timeout limits (`10.0` seconds for Gemini/OpenAI, `8.0` seconds for Ollama) to prevent the BMS loop from hanging indefinitely.
+- **Fail-Safe Heuristic Controls**:
+  - Evaluates thermodynamic constraints and occupancy rules directly via Python logic.
+  - If unoccupied, it aggressively relaxes cooling to `27.5`°C and heating to `16.0`°C while turning off lights and lowering ventilation to save energy.
+  - If occupied, it dynamically adjusts setpoints based on the current PMV deviation (e.g., if PMV is hot ($>0.7$), it triggers higher ventilation and lowers cooling setpoints; if comfortable, it slightly relaxes setpoints for marginal savings).
 
 ---
 
@@ -90,3 +118,35 @@ Instead of loading massive files blindly, the [EnergyPlusParser](file:///c:/User
 - To prevent storage bloat on the host machine, the orchestrator invokes [clean_output_folders](file:///c:/Users/matur/OneDrive/Desktop/EcoLoop-Building-Agent/utils/file_manager.py) at the start of each pipeline execution.
 - It removes intermediate `.csv`, `.eso`, `.shd`, and other heavy transient EnergyPlus runtime files from the simulations folder while optionally preserving persistent logging files in a separate directory.
 - This ensures only the necessary active files are staged in the workspace.
+
+---
+
+## 5. Autonomous ReAct Agentic Self-Correction Loop
+
+To guarantee absolute system autonomy and eliminate human-in-the-loop debugging, the EcoLoop Building Agent implements an autonomous **Reasoning and Acting (ReAct)** self-correction framework ([react_agent.py](file:///c:/Users/matur/OneDrive/Desktop/EcoLoop-Building-Agent/llm/react_agent.py)).
+
+### ReAct Workflow & Execution Architecture
+If the simulation run fails (e.g., due to syntax errors, corrupt coordinates, or missing schedules in the building model), the pipeline catches the error and spawns the `ReActAgent` to execute the self-correction cycle:
+
+```mermaid
+graph TD
+    SimFail[Simulation Fails] --> SpReAct[Spawn ReAct Agent]
+    SpReAct --> ReActLoop[ReAct Loop Starts]
+    ReActLoop --> ReadErrors[Call tool_extract_errors]
+    ReadErrors --> ParseLogs[Extract error details from eplusout.err]
+    ParseLogs --> LLMReason[LLM reasons about fix]
+    LLMReason --> PatchIDF[Call tool_patch_idf]
+    PatchIDF --> RunSim[Call tool_run_simulation]
+    RunSim --> CheckSuccess{Simulation successful?}
+    CheckSuccess -->|Yes| Success[Final Answer: Success]
+    CheckSuccess -->|No| ReActLoop
+```
+
+### Custom Agentic Tools
+The ReAct agent operates in a closed loop utilizing standard agentic tools defined in [tools.py](file:///c:/Users/matur/OneDrive/Desktop/EcoLoop-Building-Agent/llm/tools.py):
+1. **`tool_read_file(filepath)`**: Parses and reads any files on the filesystem.
+2. **`tool_extract_errors(log_path)`**: Scans simulation error files (`eplusout.err`) and extracts critical warnings, severe, and fatal statements.
+3. **`tool_patch_idf(idf_path, target, replacement)`**: Performs dynamic drop-in code replacements in the IDF file to correct building configurations.
+4. **`tool_run_simulation(idf_path, weather_path)`**: Re-runs the physical simulation and reports success or fail codes.
+
+This closed-loop system allows the local or cloud LLM to run diagnostics, execute tasks, parse output logs, patch IDF files, and verify physical outcomes completely autonomously.

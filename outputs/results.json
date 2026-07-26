@@ -1,40 +1,41 @@
 {
-  "timestamp": "2026-07-25 13:58:50",
-  "pipeline_duration_seconds": 12.43,
+  "timestamp": "2026-07-26 12:43:42",
+  "pipeline_duration_seconds": 76.8,
   "ai_model": "qwen3",
   "control_decisions": {
-    "cooling_setpoint": 24.5,
-    "heating_setpoint": 19.5,
+    "cooling_setpoint": 25.5,
+    "heating_setpoint": 19.0,
     "lighting": "low",
     "ventilation": "medium",
-    "reason": "[Heuristic Optimizer] Occupied and comfortable (PMV in comfort zone). Slightly relaxed setpoints to optimize energy consumption."
+    "reason": "Peak pricing is active at hour 14, requiring energy conservation. High relative humidity (90.5%) necessitates medium ventilation. Cooling setpoint is raised to 25.5\u00b0C and heating setpoint is set to 19.0\u00b0C to reduce HVAC load while keeping the occupied zone within comfort limits. Lighting is set to low to further reduce peak energy consumption.",
+    "model_used": "GEMINI (gemini-3.5-flash)"
   },
   "baseline_metrics": {
-    "total_elec_kwh": 42.5,
-    "hvac_elec_kwh": 11.3,
-    "avg_indoor_temp": 22.38,
-    "avg_relative_humidity": 51.43,
-    "avg_pmv": 0.13,
-    "cooling_load_kwh": 130180.25,
-    "heating_load_kwh": 0.0,
-    "rows_processed": 24
+    "total_elec_kwh": 248.15,
+    "hvac_elec_kwh": 143.29,
+    "avg_indoor_temp": 22.02,
+    "avg_relative_humidity": 70.87,
+    "avg_pmv": -0.38,
+    "cooling_load_kwh": 340.8,
+    "heating_load_kwh": 301.63,
+    "rows_processed": 48
   },
   "optimized_metrics": {
-    "total_elec_kwh": 17.86,
-    "hvac_elec_kwh": 4.66,
-    "avg_indoor_temp": 22.33,
-    "avg_relative_humidity": 51.5,
-    "avg_pmv": 0.12,
-    "cooling_load_kwh": 53682.37,
-    "heating_load_kwh": 0.0,
-    "rows_processed": 24
+    "total_elec_kwh": 149.15,
+    "hvac_elec_kwh": 23.87,
+    "avg_indoor_temp": 22.01,
+    "avg_relative_humidity": 90.5,
+    "avg_pmv": -0.29,
+    "cooling_load_kwh": 64.93,
+    "heating_load_kwh": 41.82,
+    "rows_processed": 48
   },
   "savings": {
-    "electricity_saved_kwh": 24.64,
-    "savings_pct": 57.98,
-    "hvac_electricity_saved_kwh": 6.64,
-    "hvac_savings_pct": 58.76,
-    "cost_saved_usd": 2.96,
-    "comfort_pmv_change": -0.02
+    "electricity_saved_kwh": 218.42,
+    "savings_pct": 55.8,
+    "hvac_electricity_saved_kwh": 119.42,
+    "hvac_savings_pct": 83.34,
+    "cost_saved_usd": 26.21,
+    "comfort_pmv_change": -0.1
   }
 }

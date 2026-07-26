@@ -10,6 +10,34 @@ from energyplus.runner import EnergyPlusRunner
 from energyplus.parser import EnergyPlusParser
 from energyplus.idf_editor import IDFEditor
 from llm.agent import LLMAgent
+import sys
+
+def animate_data_transfer(source: str, target: str, payload: dict):
+    """Creates a visual log of live data transfer for the demo."""
+    logger.info(f">> LIVE DATA STREAM OPENED: {source} ===> {target}")
+    for k, v in payload.items():
+        logger.info(f"   [SYNC] Streaming {k: <20} »»» {v}")
+    logger.info(f">> STREAM CLOSED")
+
+def run_simulation_with_correction(runner: EnergyPlusRunner, idf_file: Path, weather_file: Path, output_dir: Path) -> Any:
+    try:
+        return runner.run(idf_file, weather_file, output_dir)
+    except Exception as e:
+        logger.warning(f"Simulation run on {idf_file.name} encountered a failure: {e}. Launching agentic self-correction loop...")
+        from llm.react_agent import ReActAgent
+        react_agent = ReActAgent()
+        success = react_agent.run_correction_loop(
+            idf_path=str(idf_file),
+            weather_path=str(weather_file),
+            log_path=str(output_dir / "eplusout.err"),
+            max_iterations=5
+        )
+        if success:
+            logger.info(f"Self-correction loop successfully corrected {idf_file.name} and ran simulation!")
+            return runner.run(idf_file, weather_file, output_dir)
+        else:
+            logger.error(f"Self-correction loop failed to correct simulation error for {idf_file.name}.")
+            raise e
 
 def run_optimization_pipeline(
     idf_path: str | Path,
@@ -18,12 +46,12 @@ def run_optimization_pipeline(
     opt_output_dir: str | Path = None
 ) -> Dict[str, Any]:
     """
-    Executes the closed-loop building energy optimization pipeline:
-    Baseline Run -> Parse -> LLM Decision -> Modify IDF -> Optimized Run -> Savings.
+    Executes the closed-loop building energy optimization pipeline with multiple iterations:
+    Baseline Run -> Parse -> Iteration 1 (LLM -> Modify -> Run) -> Iteration 2 (LLM -> Modify -> Run) -> Final Iteration (LLM -> Modify -> Run) -> Savings.
     """
     start_time = time.time()
     logger.info("=========================================")
-    logger.info("EcoLoop Building Agent Pipeline Started")
+    logger.info("EcoLoop Building Agent Pipeline Started (Multi-Iteration)")
     logger.info("=========================================")
     
     idf_path = Path(idf_path)
@@ -34,13 +62,24 @@ def run_optimization_pipeline(
     opt_output_dir = Path(opt_output_dir or Config.SIMULATIONS_DIR / "optimized")
     optimized_idf_path = opt_output_dir / "optimized_building.idf"
 
+    repo_idf_dir = Config.BASE_DIR / "energyplus" / "idf"
+    repo_idf_dir.mkdir(parents=True, exist_ok=True)
+    
+    baseline_idf = repo_idf_dir / "baseline.idf"
+    iteration1_idf = repo_idf_dir / "optimized_iteration1.idf"
+    iteration2_idf = repo_idf_dir / "optimized_iteration2.idf"
+    final_idf = repo_idf_dir / "optimized_final.idf"
+
+    # Copy initial IDF to baseline.idf
+    copy_idf(idf_path, baseline_idf)
+
     # Clean previous intermediate simulation output runs (but keep logs)
     clean_output_folders(Config.SIMULATIONS_DIR, keep_logs=True)
     
     # 2. RUN BASELINE SIMULATION
     logger.info("--- Step 1: Running Baseline Simulation ---")
     runner = EnergyPlusRunner(Config.ENERGYPLUS_PATH)
-    baseline_result = runner.run(idf_path, weather_path, base_output_dir)
+    baseline_result = runner.run(baseline_idf, weather_path, base_output_dir)
     
     if baseline_result.status != "success":
         logger.error("Baseline simulation failed. Aborting pipeline.")
@@ -58,45 +97,113 @@ def run_optimization_pipeline(
         f"Avg PMV={baseline_metrics.avg_pmv:.2f}"
     )
 
-    # 4. CALL LLM AGENT FOR DYNAMIC SETPOINTS
-    logger.info("--- Step 3: Querying AI Agent for Optimal Control Decisions ---")
     agent = LLMAgent()
-    
-    # Extract comfort indicators
-    # We pass the values to LLM to make intelligent adjustments
-    # Default occupancy is set to 1.0 (assuming occupied zone during simulation hours)
-    decision = agent.get_decision(
+    editor = IDFEditor()
+
+    # 4. ITERATION 1
+    logger.info("--- Step 3: Optimization Iteration 1 ---")
+    animate_data_transfer("EnergyPlus Sensors", "LLM Agent", {
+        "Avg_Temp": f"{baseline_metrics.avg_indoor_temp:.2f}°C",
+        "PMV_Comfort": f"{baseline_metrics.avg_pmv:.2f}",
+        "Energy_Demand": f"{baseline_metrics.total_electricity_kwh * 1000.0 / 24.0:.2f} W"
+    })
+    decision_1 = agent.get_decision(
         temperature=baseline_metrics.avg_indoor_temp,
         humidity=baseline_metrics.avg_relative_humidity,
         pmv=baseline_metrics.avg_pmv,
-        energy=baseline_metrics.total_electricity_kwh * 1000.0 / 24.0, # Approximate average Watts over 24h
+        energy=baseline_metrics.total_electricity_kwh * 1000.0 / 24.0,
         occupancy=1.0  
     )
+    animate_data_transfer("LLM Agent", "EnergyPlus IDF Controls", {
+        "Cooling_Setpoint": f"{decision_1['cooling_setpoint']}°C",
+        "Heating_Setpoint": f"{decision_1['heating_setpoint']}°C",
+        "Lighting": str(decision_1['lighting']).upper()
+    })
+    logger.info(f"Iteration 1 Decision: Cooling Setpoint={decision_1['cooling_setpoint']}°C | "
+                f"Heating Setpoint={decision_1['heating_setpoint']}°C | "
+                f"Lighting={decision_1['lighting']}")
     
-    logger.info(f"AI Decision: Cooling Setpoint={decision['cooling_setpoint']}°C | "
-                f"Heating Setpoint={decision['heating_setpoint']}°C | "
-                f"Lighting={decision['lighting']} | Ventilation={decision['ventilation']}")
-    logger.info(f"AI Rationale: {decision['reason']}")
+    container_1 = editor.load_idf(baseline_idf)
+    container_1 = editor.change_cooling_setpoint(container_1, decision_1["cooling_setpoint"])
+    container_1 = editor.change_heating_setpoint(container_1, decision_1["heating_setpoint"])
+    container_1 = editor.change_lighting_schedule(container_1, decision_1["lighting"])
+    editor.save_new_idf(container_1, iteration1_idf)
 
-    # 5. MODIFY IDF WITH OPTIMIZED SETPOINTS
-    logger.info("--- Step 4: Applying AI Setpoints to IDF ---")
-    editor = IDFEditor()
-    container = editor.load_idf(idf_path)
-    container = editor.change_cooling_setpoint(container, decision["cooling_setpoint"])
-    container = editor.change_heating_setpoint(container, decision["heating_setpoint"])
-    container = editor.change_lighting_schedule(container, decision["lighting"])
-    
-    # Save as new optimized IDF
-    saved_idf = editor.save_new_idf(container, optimized_idf_path)
-    logger.info(f"Optimized IDF saved: {saved_idf}")
+    logger.info("Running simulation for Iteration 1...")
+    iter1_output_dir = Config.SIMULATIONS_DIR / "iteration1"
+    run_simulation_with_correction(runner, iteration1_idf, weather_path, iter1_output_dir)
+    iter1_metrics = EnergyPlusParser.parse_csv(iter1_output_dir / "eplusout.csv")
+    logger.info(f"Iteration 1 Results: Energy={iter1_metrics.total_electricity_kwh:.2f} kWh | PMV={iter1_metrics.avg_pmv:.2f}")
 
-    # 6. RUN OPTIMIZED SIMULATION
-    logger.info("--- Step 5: Running Optimized Simulation ---")
-    optimized_result = runner.run(saved_idf, weather_path, opt_output_dir)
+    # 5. ITERATION 2
+    logger.info("--- Step 4: Optimization Iteration 2 ---")
+    animate_data_transfer("EnergyPlus Sensors", "LLM Agent", {
+        "Avg_Temp": f"{iter1_metrics.avg_indoor_temp:.2f}°C",
+        "PMV_Comfort": f"{iter1_metrics.avg_pmv:.2f}",
+        "Energy_Demand": f"{iter1_metrics.total_electricity_kwh * 1000.0 / 24.0:.2f} W"
+    })
+    decision_2 = agent.get_decision(
+        temperature=iter1_metrics.avg_indoor_temp,
+        humidity=iter1_metrics.avg_relative_humidity,
+        pmv=iter1_metrics.avg_pmv,
+        energy=iter1_metrics.total_electricity_kwh * 1000.0 / 24.0,
+        occupancy=1.0  
+    )
+    animate_data_transfer("LLM Agent", "EnergyPlus IDF Controls", {
+        "Cooling_Setpoint": f"{decision_2['cooling_setpoint']}°C",
+        "Heating_Setpoint": f"{decision_2['heating_setpoint']}°C",
+        "Lighting": str(decision_2['lighting']).upper()
+    })
+    logger.info(f"Iteration 2 Decision: Cooling Setpoint={decision_2['cooling_setpoint']}°C | "
+                f"Heating Setpoint={decision_2['heating_setpoint']}°C | "
+                f"Lighting={decision_2['lighting']}")
     
-    if optimized_result.status != "success":
-        logger.error("Optimized simulation failed. Aborting pipeline.")
-        raise RuntimeError("Optimized EnergyPlus simulation failed.")
+    container_2 = editor.load_idf(iteration1_idf)
+    container_2 = editor.change_cooling_setpoint(container_2, decision_2["cooling_setpoint"])
+    container_2 = editor.change_heating_setpoint(container_2, decision_2["heating_setpoint"])
+    container_2 = editor.change_lighting_schedule(container_2, decision_2["lighting"])
+    editor.save_new_idf(container_2, iteration2_idf)
+
+    logger.info("Running simulation for Iteration 2...")
+    iter2_output_dir = Config.SIMULATIONS_DIR / "iteration2"
+    run_simulation_with_correction(runner, iteration2_idf, weather_path, iter2_output_dir)
+    iter2_metrics = EnergyPlusParser.parse_csv(iter2_output_dir / "eplusout.csv")
+    logger.info(f"Iteration 2 Results: Energy={iter2_metrics.total_electricity_kwh:.2f} kWh | PMV={iter2_metrics.avg_pmv:.2f}")
+
+    # 6. FINAL ITERATION
+    logger.info("--- Step 5: Optimization Final Iteration ---")
+    animate_data_transfer("EnergyPlus Sensors", "LLM Agent", {
+        "Avg_Temp": f"{iter2_metrics.avg_indoor_temp:.2f}°C",
+        "PMV_Comfort": f"{iter2_metrics.avg_pmv:.2f}",
+        "Energy_Demand": f"{iter2_metrics.total_electricity_kwh * 1000.0 / 24.0:.2f} W"
+    })
+    decision_final = agent.get_decision(
+        temperature=iter2_metrics.avg_indoor_temp,
+        humidity=iter2_metrics.avg_relative_humidity,
+        pmv=iter2_metrics.avg_pmv,
+        energy=iter2_metrics.total_electricity_kwh * 1000.0 / 24.0,
+        occupancy=1.0  
+    )
+    animate_data_transfer("LLM Agent", "EnergyPlus IDF Controls", {
+        "Cooling_Setpoint": f"{decision_final['cooling_setpoint']}°C",
+        "Heating_Setpoint": f"{decision_final['heating_setpoint']}°C",
+        "Lighting": str(decision_final['lighting']).upper()
+    })
+    logger.info(f"Final Decision: Cooling Setpoint={decision_final['cooling_setpoint']}°C | "
+                f"Heating Setpoint={decision_final['heating_setpoint']}°C | "
+                f"Lighting={decision_final['lighting']}")
+    
+    container_final = editor.load_idf(iteration2_idf)
+    container_final = editor.change_cooling_setpoint(container_final, decision_final["cooling_setpoint"])
+    container_final = editor.change_heating_setpoint(container_final, decision_final["heating_setpoint"])
+    container_final = editor.change_lighting_schedule(container_final, decision_final["lighting"])
+    editor.save_new_idf(container_final, final_idf)
+
+    logger.info("Running simulation for Final Iteration...")
+    run_simulation_with_correction(runner, final_idf, weather_path, opt_output_dir)
+    
+    # Copy final IDF to optimized_idf_path for downstream compatibility
+    copy_idf(final_idf, optimized_idf_path)
 
     # 7. PARSE OPTIMIZED OUTPUTS
     logger.info("--- Step 6: Parsing Optimized Output Metrics ---")
@@ -110,11 +217,13 @@ def run_optimization_pipeline(
         f"Avg PMV={optimized_metrics.avg_pmv:.2f}"
     )
 
+    decision = decision_final
+
     # 8. CALCULATE SAVINGS
     logger.info("--- Step 7: Calculating Energy and Cost Savings ---")
     
-    base_elec = baseline_metrics.total_electricity_kwh
-    opt_elec = optimized_metrics.total_electricity_kwh
+    base_elec = baseline_metrics.total_electricity_kwh + baseline_metrics.hvac_electricity_kwh
+    opt_elec = optimized_metrics.total_electricity_kwh + optimized_metrics.hvac_electricity_kwh
     
     base_hvac = baseline_metrics.hvac_electricity_kwh
     opt_hvac = optimized_metrics.hvac_electricity_kwh

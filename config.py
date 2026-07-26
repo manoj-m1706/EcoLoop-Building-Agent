@@ -19,6 +19,13 @@ class Config:
     OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://localhost:11434").strip()
     MODEL_NAME = os.getenv("MODEL_NAME", "qwen3").strip()
     OUTPUT_FOLDER_NAME = os.getenv("OUTPUT_FOLDER", "outputs").strip()
+    
+    # SOTA Cloud Model Configuration
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "").strip()
+    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip()
+    OPENAI_API_BASE = os.getenv("OPENAI_API_BASE", "https://api.openai.com/v1").strip()
+    GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-3.5-flash").strip()
+    OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini").strip()
 
     # Derived Paths
     OUTPUT_DIR = BASE_DIR / OUTPUT_FOLDER_NAME

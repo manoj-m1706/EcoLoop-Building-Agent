@@ -81,7 +81,8 @@ class IDFEditor:
                 for sched_type in ['SCHEDULE:CONSTANT', 'SCHEDULE:COMPACT']:
                     if sched_type in container.eppy_idf.idfobjects:
                         for s in container.eppy_idf.idfobjects[sched_type]:
-                            if 'cooling' in s.Name.lower() and 'setpoint' in s.Name.lower():
+                            name_lower = s.Name.lower()
+                            if ('cooling' in name_lower or 'clg' in name_lower) and ('setpoint' in name_lower or 'setp' in name_lower or 'clg-setp' in name_lower):
                                 if sched_type == 'SCHEDULE:CONSTANT':
                                     s.Hourly_Value = setpoint
                                 else: # Compact
@@ -90,8 +91,13 @@ class IDFEditor:
                                     # For safety, let's update all fields that look like temperature numbers.
                                     for i in range(len(s.fieldvalues)):
                                         val = s.fieldvalues[i]
-                                        if isinstance(val, (int, float)) and 15.0 <= val <= 35.0:
-                                            s.fieldvalues[i] = setpoint
+                                        try:
+                                            fval = float(val)
+                                            # Only modify daytime comfort setpoint (typically 22-25C), not night setback (typically 28-30C)
+                                            if 18.0 <= fval <= 26.0:
+                                                s.fieldvalues[i] = setpoint
+                                        except (ValueError, TypeError):
+                                            pass
                                 modified = True
                 if modified:
                     logger.debug("Cooling setpoint updated via eppy.")
@@ -136,14 +142,20 @@ class IDFEditor:
                 for sched_type in ['SCHEDULE:CONSTANT', 'SCHEDULE:COMPACT']:
                     if sched_type in container.eppy_idf.idfobjects:
                         for s in container.eppy_idf.idfobjects[sched_type]:
-                            if 'heating' in s.Name.lower() and 'setpoint' in s.Name.lower():
+                            name_lower = s.Name.lower()
+                            if ('heating' in name_lower or 'htg' in name_lower) and ('setpoint' in name_lower or 'setp' in name_lower or 'htg-setp' in name_lower):
                                 if sched_type == 'SCHEDULE:CONSTANT':
                                     s.Hourly_Value = setpoint
                                 else:
                                     for i in range(len(s.fieldvalues)):
                                         val = s.fieldvalues[i]
-                                        if isinstance(val, (int, float)) and 10.0 <= val <= 25.0:
-                                            s.fieldvalues[i] = setpoint
+                                        try:
+                                            fval = float(val)
+                                            # Only modify daytime comfort setpoint (typically 19-22C), not night setback (typically 12-16C)
+                                            if 18.0 <= fval <= 23.0:
+                                                s.fieldvalues[i] = setpoint
+                                        except (ValueError, TypeError):
+                                            pass
                                 modified = True
                 if modified:
                     logger.debug("Heating setpoint updated via eppy.")
@@ -188,6 +200,10 @@ class IDFEditor:
             
         logger.info(f"Updating lighting status to '{status}' (Value: {status_val})")
         
+        if status.lower() == "on":
+            logger.info("Lighting status is 'on'. Keeping standard baseline schedule.")
+            return container
+        
         if container.is_eppy:
             try:
                 modified = False
@@ -200,8 +216,16 @@ class IDFEditor:
                                 else:
                                     for i in range(len(s.fieldvalues)):
                                         val = s.fieldvalues[i]
-                                        if isinstance(val, (int, float)) and 0.0 <= val <= 1.0:
-                                            s.fieldvalues[i] = status_val
+                                        try:
+                                            fval = float(val)
+                                            if 0.0 <= fval <= 1.0:
+                                                if fval > 0.1:
+                                                    s.fieldvalues[i] = status_val
+                                                else:
+                                                    # Keep low off-hours value
+                                                    s.fieldvalues[i] = min(fval, status_val)
+                                        except (ValueError, TypeError):
+                                            pass
                                 modified = True
                 if modified:
                     logger.debug("Lighting schedule updated via eppy.")

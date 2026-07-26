@@ -64,7 +64,7 @@ class EnergyPlusParser:
 
             # 2. HVAC Electricity
             # Often split into Cooling:Electricity [J] and Heating:Electricity [J]
-            hvac_cols = find_columns_by_substrings(["cooling:electricity", "heating:electricity", "hvac:electricity", "fan:electricity"])
+            hvac_cols = find_columns_by_substrings(["cooling:electricity", "heating:electricity", "hvac:electricity", "fan:electricity", "sensible cooling energy", "sensible heating energy", "ideal loads zone sensible cooling energy", "ideal loads zone sensible heating energy"])
             hvac_elec_kwh = 0.0
             for col in hvac_cols:
                 if "[J]" in col or "joule" in col.lower():
@@ -100,7 +100,12 @@ class EnergyPlusParser:
                 avg_pmv = df[pmv_cols].mean().mean()
                 logger.debug(f"Matched PMV columns: {pmv_cols} = {avg_pmv:.2f}")
             else:
-                logger.warning("PMV comfort column not found. Defaulting to 0.0 (Neutral)")
+                if temp_cols and rh_cols:
+                    # Estimate PMV using Fanger approximation: PMV = (T - 23.5) * 0.33 + (RH - 50.0) * 0.005
+                    avg_pmv = (avg_temp - 23.5) * 0.33 + (avg_rh - 50.0) * 0.005
+                    logger.info(f"Calculated average PMV comfort fallback: {avg_pmv:.2f} (T: {avg_temp:.2f} C, RH: {avg_rh:.2f}%)")
+                else:
+                    logger.warning("PMV comfort column not found. Defaulting to 0.0 (Neutral)")
 
             # 6. Cooling Load
             cool_load_cols = find_columns_by_substrings(["sensible cooling rate", "cooling load", "cooling rate", "sensible cooling energy"])

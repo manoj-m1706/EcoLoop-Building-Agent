@@ -95,7 +95,20 @@ class EnergyPlusRunner:
             
             logger.info(f"Simulation completed with status: {status} in {execution_time:.2f}s")
             
-            if status == "failed":
+            if status == "success":
+                # Run ReadVarsESO to generate CSV output from the binary .eso file
+                readvars_exe = self.energyplus_exe.parent / "PostProcess" / "ReadVarsESO.exe"
+                if readvars_exe.exists():
+                    logger.info("Running ReadVarsESO post-processing to generate CSV file...")
+                    subprocess.run(
+                        [str(readvars_exe)],
+                        cwd=str(output_folder),
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE
+                    )
+                else:
+                    logger.warning("ReadVarsESO.exe not found. Output CSV cannot be generated.")
+            else:
                 logger.error(f"EnergyPlus execution failed. Error logs:\n{error_logs}")
                 raise EnergyPlusSimulationError(f"EnergyPlus simulation failed with code {result.returncode}. Logs: {error_logs[:500]}")
                 
